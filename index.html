@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Simulation and Analysis of a Machine-Tool Drive System</title>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-core.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-matlab.min.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+   <style>
+        body {
+            font-family: 'Cambria', Georgia, serif;
+            line-height: 1.8;
+            color: #222;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 4rem 1.5rem 2rem;
+            background: #ffffff;
+            font-size: 0.95rem;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 2rem;
+        }
+        h1 {
+            font-size: 2.1rem;
+            margin: 0 0 0.8rem;
+            color: #000;
+            letter-spacing: -0.02em;
+        }
+        .subtitle {
+            font-size: 1.3rem;
+            color: #444;
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        .author {
+            font-size: 1.1rem;
+            color: #555;
+            margin-top: 0.5rem;
+        }
+        h2 {
+            font-size: 1.3rem;
+            margin: 3rem 0 1.2rem;
+            color: #000;
+            border-bottom: 1px solid #aaa;
+            padding-bottom: 0.4rem;
+            font-weight: normal;
+        }
+        h3 {
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            color: #111;
+        }
+        p {
+            margin: 1.2rem 0;
+            text-align: justify;
+        }
+        .equation {
+            background: #fcfcfc;
+            text-align: center;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.15rem;
+        }
+        .equation-block {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .figure {
+            text-align: center;
+            margin: 2.5rem 0;
+        }
+        .figure img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .caption {
+            margin-top: 0.8rem;
+            font-style: italic;
+            color: #444;
+            font-size: 0.95rem;
+        }
+        table {
+            width: 100%;
+            margin: 1.5rem 0;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 0.8rem;
+            text-align: center;
+        }
+        th {
+            background: #f0f0f0;
+            font-weight: normal;
+            color: #222;
+        }
+        .code-block {
+            background: #f8f8f8;
+            padding: 1.2rem;
+            border: 1px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        footer {
+            text-align: center;
+            margin-top: 5rem;
+            padding-top: 2rem;
+            border-top: 1px solid #ccc;
+            color: #555;
+            font-size: 0.95rem;
+        }
+        ul, ol {
+            margin: 1.2rem 0;
+            padding-left: 2.2rem;
+        }
+        li {
+            margin-bottom: 0.6rem;
+        }
+    </style>
+</head>
+<body>
+
+       <header>
+        <h1>Simulation and Analysis of a Machine-Tool Drive System</h1>
+        <div class="author">Wezi Zimba<br>Bachelor of Engineering</div>
+		<div class="contact">wzizimba@outlook.com</div>
+    </header>
+
+        <h2>Abstract</h2>
+        <p>
+          This short project is an analysis of an ideal rotational machine-tool drive system consisting two inertias \(J_1\) and \(J_2\). The system is characterized by a non-negligible frictional effect, represented by &mu;, between \(J_2\) and the ground. This study covers the mathematical model derivation from first principles and its numerical simulation so as to evaluate the relation between the angulr velocity of inertia 2, \(\Omega_2\) and the damping \(C\).
+        </p>
+    
+    <section>
+        <h2>1. Introduction</h2>
+        <h4>1.1. Problem Statement</h4>
+		<p>
+			Machine-tool drive systems are designed with flexible couplings between the motors and loads which results in torsianal effects that can lead to oscilliation effects. This study analyses a simplified model of a system such as that with a focus on the interactions between inertia \(J_1\) and inertia \(J_2\), a spring coupling of stiffness K and the nonlinear friction between \(J_2\) and the ground.
+        </p>
+        <h4>1.2. Description of System</h4>
+        <p>
+           The system consists of:<br>
+           [1] Primary Inertia \(J_1\) which is driven by input torque \(T_s(t)\)<br>
+           [2] Secondary Inertia \(J_2\) which is connected to the ground by nonlinear friction<br>
+           [3] Torsinal Spring with stiffness \(K\)<br>
+
+           The nonlinear friction is described by the equation\(^1\):<br>
+           <div class="equation">
+					\[T_{\mu} = \Omega_2 \left( \frac{T_0}{\lvert \Omega_2 \rvert} \right) + C \lvert \Omega_2 \rvert \Omega_2\]
+				</div>
+        </p>
+        <h4>1.3. Project Objectives</h4>
+        <p>[1] To derive a mathematical model of the system form first principles<br>
+           [2] To simulate the system using numerical methods<br>
+           [3] To perform an analysis of the system response for varing damping, \(C\)
+        </p>
+	<section>
+		<h2>2. Mathematical Model Development</h2>
+		<h4>2.1. Assumptions made</h4>
+			<p>
+			[1] The bearing friction is negligible (i.e. the system is ideal)<br>
+			[2] The spring is treated as a lumped parameter<br>
+            [3] Parameters \(J\) and \(K\) are constant
+            </p>
+		<h4>2.2. Free-body Diagrm</h4>
+        <div class="figure">
+            <img src="fbd.png" alt="Free Body Diagram">
+            <div class="caption">Figure 1: Free body diagram of subsystems (Source: Author, 2025)</div>
+        </div>
+		<p>
+		The susbsystems as in figure 1 are:<br>
+        [1] <strong>Inertia \(J_1\):</strong> with applied torque \(T_s(t)\); angular velocity \(\Omega_ 1\); reaction torque \(T_f\); and angular displacement \(\theta_1\) .<br>
+        [2] <strong>Spring Stiffness K:</strong> which twists under torque \(T_f = K(\theta_1 - \theta_2)\) and transmits torque between the inertias<br>
+		[3] <strong>Inertia \(J_2\): </strong>subject to driving torque \(T_f\); nonlinear friction effect \(T_\mu\); angular velocity  \(\Omega_2\) ; and angular displacement \(\theta_2\).
+        </p>
+		<h4>2.2. Governing Equations</h4>
+        <p>
+            Newton's Second Law of motion is applied to define the forces on the subsystems.<br>
+            <h4>\(J_1\) subsystem</h4>
+            <div class="equation">
+				\[J_1\left(\frac{d\Omega_1}{dt}\right)=T_s-T_f\]
+				</div>
+             <h4>\(J_2\) subsystem</h4>
+            <div class="equation">
+			    \[J_2\left(\frac{d\Omega_2}{dt}\right)=T_f-T_\mu\]
+            </div>
+            Angular velocities are differentiated to obtain angular displacements:
+          <div class="equation">
+					\[\int (\Omega_1 - \Omega_2) dt = (\theta_1 - \theta_2)\]
+                </div>
+             <h4>Spring Torque</h4>
+            <div class="equation">
+			     \[T_f = K(\theta_1 - \theta_2)\]
+				</div>
+             <h4>Nonlinear Friction</h4>
+             <p>As in section 1.2;</p>
+            <div class="equation">
+				\[T_{\mu} = \Omega_2 \left( \frac{T_0}{\lvert \Omega_2 \rvert} \right) + C \lvert \Omega_2 \rvert \Omega_2\]
+                </div>
+         
+        The complete system is therefore described by six equations above.
+		</p>
+        <h4>2.3. State-Space Representation</h4>
+		The state vector \( \mathbf{x} = [\theta_1, \theta_2, \Omega_1, \Omega_2]^T \)
+		 <p>Full system of equations:</p>
+        <div class="equation-container">
+        <div style="display: flex; gap: 50px; align-items: center; justify-content: center; text-align: left;">
+         <div>
+              \( \frac{d\theta_1}{dt} = \Omega_1 \) <br><br>
+              \( \frac{d\theta_2}{dt} = \Omega_2 \)
+         </div>
+        <div>
+             \( \frac{d\Omega_1}{dt} = \frac{[T_s - K \int (\Omega_1 - \Omega_2) dt]}{J_1} \) <br><br>
+             \( \frac{d\Omega_2}{dt} = \frac{[K \int (\Omega_1 - \Omega_2) dt - \left( \frac{T_0}{|\Omega_2|]} \right) \Omega_2 - C |\Omega_2| \Omega_2}{J_2} \)
+         </div>
+        </div>
+
+    <h4>2.4. First-order Equtions from State-Space Representation</h4>
+       <div class="main-container">
+    <div class="math-column">
+        <div class="column-title">State Definitions</div>
+        \[
+        \begin{aligned}
+        x_1 &= \theta_1 \\
+        x_2 &= \Omega_2 \\
+        x_3 &= \theta_3 \\
+        x_4 &= \Omega_2 
+        \end{aligned}
+        \]
+    </div>
+
+    <div class="math-column">
+        <div class="column-title">First-Order Derivatives</div>
+        \[
+        \begin{aligned}
+        \dot{x}_1 &= x_2 \\
+        \dot{x}_2 &= \frac{ \left[ T_s - K(x_1 - x_3) \right]}{J_1} \\
+        \dot{x}_3 &= x_4 \\
+        \dot{x}_4 &= \frac{\left[ K(x_1 - x_3) - T_0 \text{sgn}(x_4) - C|x_4|x_4 \right]}{J_2} 
+        \end{aligned}
+        \]
+    </div>
+    </div>
+</div>
+        
+    </p>
+    <p>Compact Matrix Notation:</p>
+    <div class="equation">
+    
+        \[\begin{bmatrix} 
+        \dot{x}_1 \\ \dot{x}_2 \\ \dot{x}_3 \\ \dot{x}_4 
+        \end{bmatrix} = 
+        \begin{bmatrix} 
+        0 & 1 & 0 & 0 \\ 
+        -\frac{K}{J_1} & 0 & \frac{K}{J_1} & 0 \\ 
+        0 & 0 & 0 & 1 \\ 
+        \frac{K}{J_2} & 0 & -\frac{K}{J_2} & 0 
+        \end{bmatrix} 
+        \begin{bmatrix} 
+        x_1 \\ x_2 \\ x_3 \\ x_4 
+        \end{bmatrix} + 
+        \begin{bmatrix} 
+        0 \\ 
+        \frac{T_s}{J_1} \\ 
+        0 \\ 
+        -\frac{\left( T_0 \text{sgn}(x_4) + C|x_4|x_4 \right)}{J_2} 
+        \end{bmatrix}\]
+   </div>
+		<h2>3. System Implementation and Simulation</h2>
+       <h4>3.1. Simulation Parameters:</h4>
+         <p>
+            [1] \(J_1\) = 0.01 \(N \cdot m \cdot s^2\)<br>
+            [2] \(J_2\) = 0.1 \(N \cdot m \cdot s^2\)<br>
+            [3]  K = 20 \(N \cdot rad^{-1}\)<br>
+            [4] \(T_s(0)\) = 0.2<br>
+            [5] C = [0.5, 5.0] \(N \cdot m \cdot s \cdot rad^{-1}\)
+        </p>
+        <h4>3.2. MATLAB Implementation of System</h4>
+		<pre><code class="language-matlab">
+			 %% Function defining first-order ODE systm of equations
+             function dxdt = torsionalSystem(~, x, J1, J2, K, T_s, T0, C)
+
+                 dx1 = x(2);
+                 dx2 = (T_s-K*(x(1)-x(3)))/J1;
+                 dx3 = x(4);
+                 dx4 = (K*(x(1)-x(3))-T0*sign(x(4))-C*abs(x(4))*x(4))/J2;
+
+                 dxdt = [dx1; dx2; dx3; dx4];
+              end      
+		</code></pre>
+		<p class="code caption">
+			Code excerpt implementing a function defining the first-order equations of system (Source: Author, 2025)
+		</p>
+		<pre><code class="language-matlab">
+         
+         % Simulation values of C
+         C_v = [0.5, 1.0, 2.5, 5.0];
+		    
+         for C = C_v
+
+             x0 = [0; 0; 0; 0]; %initial conditions
+
+             % First-Order ODE system solution
+             [t, x] = ode45(@(t, x)...
+             torsionalSystem(t, x, J1, J2, K, T_s, T0, C), t_e, x0);
+
+             % Plot for x4, Omega2
+             plot(t, x(:, 4), 'LineWidth', 1.5, 'DisplayName', ['C = ', num2str(C)]);
+         end
+        </code></pre>
+		<p class="code caption">
+			Solution of the ordinary differential equations by iterating the damping, C and a plot of the \(x_4\) variable (Source: Author, 2025)
+		</p>
+    </section>
+
+    <section>
+        <h2>4. Results and Analysis</h2>
+        <p>The developed model exhibits a nonlinear second-order coupled system. For the purpose of simulating it, the system of equations was converted to one of first-order with focus on th angular velocity \(\Omega_2\) across varying valuues of \(C\). A plot of this relationship is shown in figure 2. The simulation reveals several key behaviours; High frequency oscilliations after the step input as a result of energy exchange between the energy of \(J_1\) and \(J_2\) and the energy stored in the spring.
+            The damping ratio is quadratic and velocity-dependant. Velocity decreases as the system nears steady-state and the damping effect weakens significantly.<br>
+        </p>
+      <div class="figure">
+            <img src="simulation_results.jpg" alt="Simulation Plot">
+            <div class="caption">Figure 2: Plot of \(x_4\) (angular velocity of inertia \(J_2\)) response due to varying damping, C (Source: Author, 2025)</div>
+        </div>  
+
+    <section>
+        <h2>5. Conclusion</h2>
+        <p>
+          The simulation results demonstrate that dynamic behaviour of a torsional system is significantly influenced the damping coefficient \(C\). The developed mathematical model predicts that an increse in the coeffecient reduces peak angular velocity.<br>
+          In order to increase effeciency of the model, multi degree-of-freedom or finite element approches might be required, the inertias in industrial applications may vary hence the ought to be taken as such in model development and active vibration control needs to be considered<br>
+          Ultimately, this model serves as a fundamental tool in engineered system development for the purposes of sizing and selection of coupling materials that withstand predicted torsional stresses.
+        </p>
+    </section>
+
+    <section>
+        <h2>References</h2>
+        <p>\(^1\) Kulakowski, B.T., Gardner, J.F. Shearer, J.L. Dynamic Modeling and Control of Engineering systems. Third Edition. (2007) Cambridge: Cambridge University Press. ISBN-13 978-0-511-28942-2-<br>
+           \(^2\) Bay, J. S. Fundamentals of Linear State Space Systems, First Edition. (1999). Virginia Polytechnic Institute and State University. The McGraw-Hill Companies Inc. ISBN 0-256-24639-4. pp38.<br>
+           \(^3\) Abdolvahab, Agharkakli, U. S. Chavan, and Dr S. Phvithran, Simulation And Analysis Of Passive And Active Suspension System Using Quarter Car Model For Non-Uniform Road Profile, International Journal of Engineering Research and Applications, 2(5), 2012, 900-906.<br>
+           \(^4\)Robert L.W. & Kent L.L., Modeling and Simulation of Dynamic System, Second Edition (1997), Prentice-Hall,<br>
+           \(^5\) Bober, W., Introduction to Numerical and Analytical Methods with MATLAB for Engineers and Scientists, First Edition (2013). CRC Press. ISBN: 1466576022, 978-1466576025<br>
+           \(^6\) Inman, J.D., Engineering Vibration, Fourth Edition, (2014)., Person Education, Inc. ISBN: 13:978-9-13-287169-3.
+        </p>
+    </section>
+
+    <section>
+        <h2>Appendix</h2>
+        <h4>A1: Mathematical Model Derivation</h4>
+	<div class="figure">
+            <img src="state_space_model_a.jpg" alt="State-Space Model A"><br>
+            <img src="state_space_model_b.jpg" alt="State-Space Model B">
+            <img src="state_space_model_c.jpg" alt="State-Space Model C">
+            <div class="caption">Figure A1: State-space model derivation from Newton’s second law of motion (Source: Author)</div>
+    </div>
+        <h4>Full MATLAB Code</h4>
+        <embed src="simulation_code.pdf" type="application/pdf" width="100%" height="600px" />
+    </section>
+
+
+    <footer>
+        <p>(c) WEZI ZIMBA 2025<br>
+            MATLAB is a registered trademark. More information at;<br>
+            The MathWorks, Inc.<br>
+            3 Apple Hill Drive<br>
+            Natick, MA 01760-2089, USA<br>
+            http://www.mathworks.com/</p>
+
+    </footer>
+
+</body>
+</html>
